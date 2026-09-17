@@ -17,25 +17,31 @@ class JournalEntryAdapter extends TypeAdapter<JournalEntry> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return JournalEntry(
-      title: fields[0] as String,
+      id: fields[0] as String,
       content: fields[1] as String,
-      date: fields[2] as DateTime,
-      mood: fields[3] as String?,
+      createdAt: fields[2] as DateTime,
+      updatedAt: fields[3] as DateTime?,
+      promptUsed: fields[4] as String?,
+      promptCategory: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, JournalEntry obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.title)
+      ..write(obj.id)
       ..writeByte(1)
       ..write(obj.content)
       ..writeByte(2)
-      ..write(obj.date)
+      ..write(obj.createdAt)
       ..writeByte(3)
-      ..write(obj.mood);
+      ..write(obj.updatedAt)
+      ..writeByte(4)
+      ..write(obj.promptUsed)
+      ..writeByte(5)
+      ..write(obj.promptCategory);
   }
 
   @override
