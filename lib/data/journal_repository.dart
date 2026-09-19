@@ -5,14 +5,9 @@ import 'package:uuid/uuid.dart';
 import '../models/journal_entry.dart';
 
 class JournalRepository {
-  static const String _boxName = 'journal_entries';
-  late Box<JournalEntry> _box;
+  final Box<JournalEntry> _box;
   final _uuid = const Uuid();
-
-  Future<void> init() async {
-    Hive.registerAdapter(JournalEntryAdapter());
-    _box = await Hive.openBox<JournalEntry>(_boxName);
-  }
+  JournalRepository(this._box);
 
   List<JournalEntry> getAllEntries() {
     final entries = _box.values.toList();

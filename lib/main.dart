@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nook/screens/home_screen.dart';
 import 'models/journal_entry.dart';
 
 void main() async {
