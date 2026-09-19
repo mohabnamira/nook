@@ -43,5 +43,11 @@ class JournalRepository {
     await _box.delete(id);
   }
 
-  ValueListenable<Box<JournalEntry>> listenable() => _box.listenable();
+    ValueListenable<Box<JournalEntry>> listenable() => _box.listenable();
+  Stream<List<JournalEntry>> watchEntries() async* {
+    yield getAllEntries();
+    yield* _box
+        .watch()
+        .asyncMap((_) => getAllEntries());
+  }
 }

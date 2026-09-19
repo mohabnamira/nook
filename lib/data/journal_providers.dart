@@ -12,3 +12,8 @@ final journalRepositoryProvider = Provider<JournalRepository>((ref) {
   final box = ref.watch(journalBoxProvider);
   return JournalRepository(box);
 });
+
+final journalEntriesProvider = StreamProvider<List<JournalEntry>>((ref) {
+  final repository = ref.watch(journalRepositoryProvider);
+  return repository.watchEntries();
+});
