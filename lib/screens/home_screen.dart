@@ -6,6 +6,24 @@ import 'new_entry_screen.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  String formatDate(DateTime date) {
+    final now = DateTime.now();
+    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+
+    final yesterday = now.subtract(const Duration(days: 1));
+    final isYesterday =
+        date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day;
+
+    final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final period = date.hour >= 12 ? 'PM' : 'AM';
+    final time = '$hour:$minute $period';
+
+    if (isToday) return 'Today, $time';
+    if (isYesterday) return 'Yesterday, $time';
+    return '${date.day}/${date.month}/${date.year}, $time';
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final entriesAsync = ref.watch(journalEntriesProvider);
@@ -26,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Text(entry.createdAt.toString()),
+                subtitle: Text(formatDate(entry.createdAt)),
               );
             },
           );
