@@ -38,21 +38,49 @@ class HomeScreen extends ConsumerWidget {
             itemCount: entries.length,
             itemBuilder: (context, index) {
               final entry = entries[index];
-              return ListTile(
-                title: Text(
-                  entry.content,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(formatDate(entry.createdAt)),
-                // Open the same screen, but hand it the entry to edit
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => NewEntryScreen(entry: entry),
+                return Dismissible(
+                  key: ValueKey(entry.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.onErrorContainer,
                     ),
-                  );
-                },
+                  ),
+                  onDismissed: (_) async {
+                    final repository = ref.read(journalRepositoryProvider);
+                    await repository.deleteEntry(entry.id);
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Entry deleted'),
+                          action: SnackBarAction(
+                            label: 'Undo',
+                            onPressed: () => repository.restoreEntry(entry),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: ListTile(
+                    title: Text(
+                      entry.content,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(formatDate(entry.createdAt)),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => NewEntryScreen(entry: entry),
+                        ),
+                      );
+                    },
+                  ),
               );
             },
           );

@@ -7,6 +7,7 @@ import '../models/journal_entry.dart';
 class JournalRepository {
   final Box<JournalEntry> _box;
   final _uuid = const Uuid();
+
   JournalRepository(this._box);
 
   List<JournalEntry> getAllEntries() {
@@ -34,6 +35,7 @@ class JournalRepository {
   Future<void> updateEntry(String id, String newContent) async {
     final entry = _box.get(id);
     if (entry == null) return;
+
     entry.content = newContent;
     entry.updatedAt = DateTime.now();
     await entry.save();
@@ -43,11 +45,14 @@ class JournalRepository {
     await _box.delete(id);
   }
 
-    ValueListenable<Box<JournalEntry>> listenable() => _box.listenable();
+  Future<void> restoreEntry(JournalEntry entry) async {
+    await _box.put(entry.id, entry);
+  }
+
+  ValueListenable<Box<JournalEntry>> listenable() => _box.listenable();
+
   Stream<List<JournalEntry>> watchEntries() async* {
     yield getAllEntries();
-    yield* _box
-        .watch()
-        .asyncMap((_) => getAllEntries());
+    yield* _box.watch().asyncMap((_) => getAllEntries());
   }
 }
