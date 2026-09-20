@@ -73,7 +73,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             // Prompts only when creating; showing a saved prompt in edit mode is 5.4.
             if (!_isEditing) ...[
               Wrap(
@@ -105,7 +105,15 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                 ),
               const SizedBox(height: 8),
             ],
-
+            if (_isEditing && widget.entry!.promptUsed != null) ...[
+              Text(
+                widget.entry!.promptUsed!,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 8),
+            ],
             Expanded(
               child: TextField(
                 controller: _controller,
