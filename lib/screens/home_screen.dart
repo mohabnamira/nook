@@ -26,13 +26,28 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final entriesAsync = ref.watch(journalEntriesProvider);
+    final entriesAsync = ref.watch(filteredEntriesProvider);
+    final query = ref.watch(searchQueryProvider);
 
     return Scaffold(
+      appBar: AppBar(
+        title: TextField(
+          onChanged: (value) =>
+              ref.read(searchQueryProvider.notifier).state = value,
+          decoration: const InputDecoration(
+            hintText: 'Search entries',
+            border: InputBorder.none,
+          ),
+        ),
+      ),
       body: entriesAsync.when(
         data: (entries) {
           if (entries.isEmpty) {
-            return const Center(child: Text('No entries yet — tap + to start'));
+            return Center(
+              child: Text(query.isEmpty
+                  ? 'No entries yet — tap + to start'
+                  : 'No results'),
+            );
           }
           return ListView.builder(
             itemCount: entries.length,
