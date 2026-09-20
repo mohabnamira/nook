@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/journal_providers.dart';
 import 'new_entry_screen.dart';
+import '../features/lock/application/lock_providers.dart';
+import '../features/lock/presentation/pin_setup.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -39,6 +41,14 @@ class HomeScreen extends ConsumerWidget {
             border: InputBorder.none,
           ),
         ),
+                actions: [
+          IconButton(
+            icon: const Icon(Icons.lock_outline),
+            tooltip: 'PIN lock',
+            onPressed: () =>
+                showLockMenu(context, ref.read(pinRepositoryProvider)),
+          ),
+        ],
       ),
       body: entriesAsync.when(
         data: (entries) {
