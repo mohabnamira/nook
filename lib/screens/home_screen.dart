@@ -45,6 +45,14 @@ class HomeScreen extends ConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(formatDate(entry.createdAt)),
+                // Open the same screen, but hand it the entry to edit
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => NewEntryScreen(entry: entry),
+                    ),
+                  );
+                },
               );
             },
           );
