@@ -8,9 +8,11 @@ import '../features/prompts/data/prompt.dart';
 import '../features/prompts/data/prompt_category.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
-  const NewEntryScreen({super.key, this.entry});
+  const NewEntryScreen({super.key, this.entry, this.initialPrompt});
 
   final JournalEntry? entry;
+
+  final Prompt? initialPrompt;
 
   @override
   ConsumerState<NewEntryScreen> createState() => _NewEntryScreenState();
@@ -36,6 +38,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.entry?.content);
+    _prompt = widget.initialPrompt;
   }
 
   Future<void> _saveEntry() async {

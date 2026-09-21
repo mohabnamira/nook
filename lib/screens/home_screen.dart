@@ -4,9 +4,51 @@ import '../data/journal_providers.dart';
 import 'new_entry_screen.dart';
 import '../features/lock/application/lock_providers.dart';
 import '../features/lock/presentation/pin_setup.dart';
+import '../features/prompts/application/prompt_providers.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+
+  bool _searching = false;
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'good morning';
+    if (hour < 18) return 'good afternoon';
+    return 'good evening';
+  }
+
+  void _toggleSearch() {
+    setState(() => _searching = !_searching);
+    if (!_searching) {
+
+      _searchController.clear();
+      ref.read(searchQueryProvider.notifier).state = '';
+    }
+  }
+
+
+  void _openEditor({bool withPrompt = false}) {
+    final prompt =
+        withPrompt ? ref.read(promptRepositoryProvider).randomPrompt() : null;
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => NewEntryScreen(initialPrompt: prompt)),
+    );
+  }
 
   String formatDate(DateTime date) {
     final now = DateTime.now();
@@ -27,99 +69,166 @@ class HomeScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final entriesAsync = ref.watch(filteredEntriesProvider);
     final query = ref.watch(searchQueryProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          onChanged: (value) =>
-              ref.read(searchQueryProvider.notifier).state = value,
-          decoration: const InputDecoration(
-            hintText: 'Search entries',
-            border: InputBorder.none,
-          ),
-        ),
-                actions: [
-          IconButton(
-            icon: const Icon(Icons.lock_outline),
-            tooltip: 'PIN lock',
-            onPressed: () =>
-                showLockMenu(context, ref.read(pinRepositoryProvider)),
-          ),
-        ],
-      ),
-      body: entriesAsync.when(
-        data: (entries) {
-          if (entries.isEmpty) {
-            return Center(
-              child: Text(query.isEmpty
-                  ? 'No entries yet — tap + to start'
-                  : 'No results'),
-            );
-          }
-          return ListView.builder(
-            itemCount: entries.length,
-            itemBuilder: (context, index) {
-              final entry = entries[index];
-                return Dismissible(
-                  key: ValueKey(entry.id),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(
-                      Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.onErrorContainer,
-                    ),
-                  ),
-                  onDismissed: (_) async {
-                    final repository = ref.read(journalRepositoryProvider);
-                    await repository.deleteEntry(entry.id);
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _searching
+                              ? TextField(
+                                  controller: _searchController,
+                                  autofocus: true,
+                                  onChanged: (value) => ref
+                                      .read(searchQueryProvider.notifier)
+                                      .state = value,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Search entries',
+                                    border: InputBorder.none,
+                                  ),
+                                )
+                              : Text(_greeting(),
+                                  style: theme.textTheme.headlineMedium),
+                        ),
+                        IconButton(
+                          icon: Icon(_searching ? Icons.close : Icons.search),
+                          tooltip: _searching ? 'Close search' : 'Search',
+                          onPressed: _toggleSearch,
+                        ),
 
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Entry deleted'),
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () => repository.restoreEntry(entry),
+                        IconButton(
+                          icon: const Icon(Icons.settings_outlined),
+                          tooltip: 'Settings',
+                          onPressed: () => showLockMenu(
+                              context, ref.read(pinRepositoryProvider)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    Material(
+                      color: colors.surfaceContainer,
+                      borderRadius: BorderRadius.circular(20),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: _openEditor,
+                        child: Container(
+                          width: double.infinity,
+                          height: 160,
+                          padding: const EdgeInsets.all(20),
+                          alignment: Alignment.topLeft,
+                          child: Text("What's on your mind today?",
+                              style: theme.textTheme.titleLarge),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => _openEditor(withPrompt: true),
+                        child: Text("I don't know",
+                            style: TextStyle(color: colors.onSurfaceVariant)),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text('History', style: theme.textTheme.titleLarge),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            ),
+
+
+            entriesAsync.when(
+              data: (entries) {
+                if (entries.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        query.isEmpty ? 'No entries yet' : 'No results',
+                        style: TextStyle(color: colors.onSurfaceVariant),
+                      ),
+                    ),
+                  );
+                }
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  sliver: SliverList.builder(
+                    itemCount: entries.length,
+                    itemBuilder: (context, index) {
+                      final entry = entries[index];
+                      return Dismissible(
+                        key: ValueKey(entry.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          color: colors.errorContainer,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Icon(
+                            Icons.delete_outline,
+                            color: colors.onErrorContainer,
                           ),
                         ),
-                      );
-                    }
-                  },
-                  child: ListTile(
-                    title: Text(
-                      entry.content,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(formatDate(entry.createdAt)),
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => NewEntryScreen(entry: entry),
+                        onDismissed: (_) async {
+                          final repository =
+                              ref.read(journalRepositoryProvider);
+                          await repository.deleteEntry(entry.id);
+
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Entry deleted'),
+                                action: SnackBarAction(
+                                  label: 'Undo',
+                                  onPressed: () =>
+                                      repository.restoreEntry(entry),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        child: ListTile(
+                          title: Text(
+                            entry.content,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(formatDate(entry.createdAt)),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => NewEntryScreen(entry: entry),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
                   ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const NewEntryScreen()),
-          );
-        },
-        child: const Icon(Icons.add),
+                );
+              },
+              loading: () => const SliverToBoxAdapter(
+                  child: Center(child: CircularProgressIndicator())),
+              error: (err, stack) =>
+                  SliverToBoxAdapter(child: Center(child: Text('Error: $err'))),
+            ),
+          ],
+        ),
       ),
     );
   }
