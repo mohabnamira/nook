@@ -29,10 +29,10 @@ flutter:
   fonts:
     - family: WorkSans
       fonts:
-        - asset: assets/fonts/WorkSans-Regular.ttf
-        - asset: assets/fonts/WorkSans-Medium.ttf
+        - asset: assets/fonts/Work_Sans/static/WorkSans-Regular.ttf
+        - asset: assets/fonts/Work_Sans/static/WorkSans-Medium.ttf
           weight: 500
-        - asset: assets/fonts/WorkSans-SemiBold.ttf
+        - asset: assets/fonts/Work_Sans/static/WorkSans-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/WorkSans-Bold.ttf
+        - asset: assets/fonts/Work_Sans/static/WorkSans-Bold.ttf
           weight: 700
