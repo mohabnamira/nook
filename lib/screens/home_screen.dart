@@ -5,6 +5,7 @@ import 'new_entry_screen.dart';
 import '../features/lock/application/lock_providers.dart';
 import '../features/lock/presentation/pin_setup.dart';
 import '../features/prompts/application/prompt_providers.dart';
+import '../features/history/presentation/history_widgets.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -166,60 +167,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   );
                 }
-                return SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  sliver: SliverList.builder(
-                    itemCount: entries.length,
-                    itemBuilder: (context, index) {
-                      final entry = entries[index];
-                      return Dismissible(
-                        key: ValueKey(entry.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          color: colors.errorContainer,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Icon(
-                            Icons.delete_outline,
-                            color: colors.onErrorContainer,
-                          ),
-                        ),
-                        onDismissed: (_) async {
-                          final repository =
-                              ref.read(journalRepositoryProvider);
-                          await repository.deleteEntry(entry.id);
+                return SliverList.builder(
+                  itemCount: entries.length,
+                  itemBuilder: (context, index) {
+                    final entry = entries[index];
+                    final previous = index > 0 ? entries[index - 1] : null;
+                    final showDivider = previous == null ||
+                        !isSameDay(previous.createdAt, entry.createdAt);
 
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Entry deleted'),
-                                action: SnackBarAction(
-                                  label: 'Undo',
-                                  onPressed: () =>
-                                      repository.restoreEntry(entry),
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: ListTile(
-                          title: Text(
-                            entry.content,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (showDivider) DateDivider(date: entry.createdAt),
+                        Dismissible(
+                          key: ValueKey(entry.id),
+                          direction: DismissDirection.endToStart,
+                                                    background: Container(
+                            color: colors.errorContainer,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Icon(Icons.delete_outline,
+                                color: colors.onErrorContainer),
                           ),
-                          subtitle: Text(formatDate(entry.createdAt)),
-                          onTap: () {
-                            Navigator.of(context).push(
+                          onDismissed: (_) async {
+                            final repository =
+                                ref.read(journalRepositoryProvider);
+                            await repository.deleteEntry(entry.id);
+
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Entry deleted'),
+                                  action: SnackBarAction(
+                                    label: 'Undo',
+                                    onPressed: () =>
+                                        repository.restoreEntry(entry),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: HistoryEntryCard(
+                            entry: entry,
+                            onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => NewEntryScreen(entry: entry),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                  ),
+                      ],
+                    );
+                  },
                 );
               },
               loading: () => const SliverToBoxAdapter(
