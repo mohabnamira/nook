@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nook/features/prompts/data/prompt_category.dart';
 import 'package:nook/models/journal_entry.dart';
+import 'package:nook/core/text_direction.dart';
 
 bool isSameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;
@@ -75,9 +76,13 @@ class HistoryEntryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: prompt == null
+                                    child: prompt == null
                       ? Text(entry.content,
-                          maxLines: 3, overflow: TextOverflow.ellipsis)
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          textDirection: directionOf(entry.content),
+                          textAlign:
+                              isRtl(entry.content) ? TextAlign.right : TextAlign.left)
                       : Text.rich(TextSpan(children: [
                           TextSpan(text: prompt, style: bold),
                           if (source != null)
@@ -96,7 +101,11 @@ class HistoryEntryCard extends StatelessWidget {
             ),
             if (prompt != null) ...[
               const SizedBox(height: 8),
-              Text(entry.content, maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(entry.content,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  textDirection: directionOf(entry.content),
+                  textAlign: isRtl(entry.content) ? TextAlign.right : TextAlign.left),
             ],
           ],
         ),

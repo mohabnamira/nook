@@ -6,7 +6,7 @@ import '../models/journal_entry.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/prompts/data/prompt.dart';
 import '../features/prompts/data/prompt_category.dart';
-import 'package:characters/characters.dart';
+import 'package:nook/core/text_direction.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
   const NewEntryScreen({super.key, this.entry, this.initialPrompt});
@@ -19,15 +19,6 @@ class NewEntryScreen extends ConsumerStatefulWidget {
   ConsumerState<NewEntryScreen> createState() => _NewEntryScreenState();
 }
 
-bool _isRtl(String text) {
-  final rtl = RegExp(
-      r'[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]');
-  for (final char in text.characters) {
-    if (rtl.hasMatch(char)) return true;
-    if (RegExp(r'[A-Za-z]').hasMatch(char)) return false;
-  }
-  return false; 
-}
 
 class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   TextDirection _direction = TextDirection.ltr;
@@ -52,9 +43,9 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
     super.initState();
     _controller = TextEditingController(text: widget.entry?.content);
     _prompt = widget.initialPrompt;
-    _direction = _isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
+    _direction = isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
     _controller.addListener(() {
-      final next = _isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
+      final next = isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
       if (next != _direction) setState(() => _direction = next);
     });
   }
