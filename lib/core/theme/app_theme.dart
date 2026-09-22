@@ -34,6 +34,7 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
       fontFamily: 'WorkSans',
+      fontFamilyFallback: const ['NotoSansArabic'],
       textTheme: const TextTheme(
         headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w700), // "History", greeting
         titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, height: 1.25), // prompts
