@@ -6,6 +6,7 @@ import '../models/journal_entry.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/prompts/data/prompt.dart';
 import '../features/prompts/data/prompt_category.dart';
+import 'package:characters/characters.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
   const NewEntryScreen({super.key, this.entry, this.initialPrompt});
@@ -18,20 +19,32 @@ class NewEntryScreen extends ConsumerStatefulWidget {
   ConsumerState<NewEntryScreen> createState() => _NewEntryScreenState();
 }
 
+bool _isRtl(String text) {
+  final rtl = RegExp(
+      r'[\u0591-\u07FF\u200F\u202B\u202E\uFB1D-\uFDFD\uFE70-\uFEFC]');
+  for (final char in text.characters) {
+    if (rtl.hasMatch(char)) return true;
+    if (RegExp(r'[A-Za-z]').hasMatch(char)) return false;
+  }
+  return false; 
+}
+
 class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
+  TextDirection _direction = TextDirection.ltr;
   late final TextEditingController _controller;
   PromptCategory? _category;
-  Prompt? _prompt; 
+  Prompt? _prompt;
 
   void _pick(PromptCategory? category) {
     setState(() {
       _category = category;
       _prompt = ref.read(promptRepositoryProvider).randomPrompt(
-            category: category,
-            exclude: _prompt?.text,
-          );
+        category: category,
+        exclude: _prompt?.text,
+      );
     });
   }
+
   bool get _isEditing => widget.entry != null;
 
   @override
@@ -39,6 +52,11 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
     super.initState();
     _controller = TextEditingController(text: widget.entry?.content);
     _prompt = widget.initialPrompt;
+    _direction = _isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
+    _controller.addListener(() {
+      final next = _isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
+      if (next != _direction) setState(() => _direction = next);
+    });
   }
 
   Future<void> _saveEntry() async {
@@ -123,6 +141,10 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
                 autofocus: true,
                 maxLines: null,
                 expands: true,
+                textDirection: _direction,
+                textAlign: _direction == TextDirection.rtl
+                    ? TextAlign.right
+                    : TextAlign.left,
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   hintText: "What's on your mind?",
