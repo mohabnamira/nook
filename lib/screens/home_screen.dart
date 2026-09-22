@@ -6,6 +6,7 @@ import '../features/lock/application/lock_providers.dart';
 import '../features/lock/presentation/pin_setup.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/history/presentation/history_widgets.dart';
+import 'entry_view_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -211,7 +212,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             entry: entry,
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => NewEntryScreen(entry: entry),
+                                builder: (_) => EntryViewScreen(entry: entry),
                               ),
                             ),
                           ),

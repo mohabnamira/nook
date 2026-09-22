@@ -24,6 +24,18 @@ String dayLabel(DateTime d) {
   const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
   return '${days[d.weekday - 1]}, $date';
 }
+String? promptSourceLabel(JournalEntry entry) {
+  for (final c in PromptCategory.values) {
+    if (c.name == entry.promptCategory) return c.label;
+  }
+  return null;
+}
+
+String fullDateTime(DateTime d) {
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG',
+    'SEP', 'OCT', 'NOV', 'DEC'];
+  return '${d.day} ${months[d.month - 1]} ${d.year}, ${formatTime(d)}';
+}
 
 class DateDivider extends StatelessWidget {
   const DateDivider({super.key, required this.date});
@@ -49,12 +61,6 @@ class HistoryEntryCard extends StatelessWidget {
   final JournalEntry entry;
   final VoidCallback onTap;
 
-  String? get _source {
-    for (final c in PromptCategory.values) {
-      if (c.name == entry.promptCategory) return c.label;
-    }
-    return null;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +69,7 @@ class HistoryEntryCard extends StatelessWidget {
     final body = theme.textTheme.bodyMedium!;
     final bold = body.copyWith(fontWeight: FontWeight.w600, fontSize: 15);
     final prompt = entry.promptUsed;
-    final source = _source;
+    final source = promptSourceLabel(entry);
 
     return InkWell(
       onTap: onTap,
@@ -76,21 +82,25 @@ class HistoryEntryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                                    child: prompt == null
+                    child: prompt == null
                       ? Text(entry.content,
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           textDirection: directionOf(entry.content),
                           textAlign:
                               isRtl(entry.content) ? TextAlign.right : TextAlign.left)
-                      : Text.rich(TextSpan(children: [
-                          TextSpan(text: prompt, style: bold),
-                          if (source != null)
-                            TextSpan(
-                              text: ' from $source',
-                              style: bold.copyWith(color: colors.onSurfaceVariant),
-                            ),
-                        ])),
+                      : Text.rich(
+                          TextSpan(children: [
+                            TextSpan(text: prompt, style: bold),
+                            if (source != null)
+                              TextSpan(
+                                text: ' from $source',
+                                style: bold.copyWith(color: colors.onSurfaceVariant),
+                              ),
+                          ]),
+                          textDirection: directionOf(prompt),
+                          textAlign: isRtl(prompt) ? TextAlign.right : TextAlign.left,
+                        ),
                 ),
                 const SizedBox(width: 12),
                 Text(
