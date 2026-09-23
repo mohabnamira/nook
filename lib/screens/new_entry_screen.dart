@@ -94,12 +94,13 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
           children: <Widget>[
             if (!_isEditing) ...[
               if (!_showCategories)
-                TextButton(
-                  onPressed: _startPrompt,
+                GestureDetector(
+                  onTap: _startPrompt,
                   child: Text(
                     "I don't know what to write",
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 )
               else ...[
