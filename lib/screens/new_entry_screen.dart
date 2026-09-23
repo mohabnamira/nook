@@ -25,6 +25,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   late final TextEditingController _controller;
   PromptCategory? _category;
   Prompt? _prompt;
+  bool _showCategories = false;
 
   void _pick(PromptCategory? category) {
     setState(() {
@@ -35,7 +36,12 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
       );
     });
   }
-
+  void _startPrompt() {
+      setState(() {
+        _showCategories = true;
+        _prompt = ref.read(promptRepositoryProvider).randomPrompt();
+      });
+    }
   bool get _isEditing => widget.entry != null;
 
   @override
@@ -43,6 +49,7 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
     super.initState();
     _controller = TextEditingController(text: widget.entry?.content);
     _prompt = widget.initialPrompt;
+    _showCategories = _prompt != null;
     _direction = isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
     _controller.addListener(() {
       final next = isRtl(_controller.text) ? TextDirection.rtl : TextDirection.ltr;
@@ -78,52 +85,61 @@ class _NewEntryScreenState extends ConsumerState<NewEntryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Entry' : 'New Entry'),
         actions: [IconButton(icon: const Icon(Icons.check), onPressed: _saveEntry)],
       ),
-            body: Padding(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Prompts only when creating; showing a saved prompt in edit mode is 5.4.
             if (!_isEditing) ...[
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final c in PromptCategory.values)
-                    ChoiceChip(
-                      label: Text(c.label),
-                      selected: _category == c,
-                      // Tapping the selected chip again goes back to "any".
-                      onSelected: (selected) => _pick(selected ? c : null),
-                    ),
-                ],
-              ),
-              if (_prompt != null)
-                Row(
+              if (!_showCategories)
+                TextButton(
+                  onPressed: _startPrompt,
+                  child: Text(
+                    "I don't know what to write",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                  ),
+                )
+              else ...[
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
-                      child: Text(
-                        _prompt!.text,
-                        style: Theme.of(context).textTheme.titleMedium,
+                    for (final c in PromptCategory.values)
+                      GestureDetector(
+                        // Tapping the selected word again goes back to "any".
+                        onTap: () => _pick(_category == c ? null : c),
+                        child: Text(
+                          c.label,
+                          style: TextStyle(
+                            color: _category == c
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight:
+                                _category == c ? FontWeight.w600 : FontWeight.w400,
+                          ),
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.shuffle),
-                      onPressed: () => _pick(_category),
-                    ),
                   ],
                 ),
-              const SizedBox(height: 8),
-            ],
-            if (_isEditing && widget.entry!.promptUsed != null) ...[
-              Text(
-                widget.entry!.promptUsed!,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
+                if (_prompt != null)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _prompt!.text,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.shuffle),
+                        onPressed: () => _pick(_category),
+                      ),
+                    ],
+                  ),
+              ],
               const SizedBox(height: 8),
             ],
             Expanded(
