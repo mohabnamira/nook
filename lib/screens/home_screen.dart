@@ -8,6 +8,7 @@ import '../features/prompts/application/prompt_providers.dart';
 import '../features/history/presentation/history_widgets.dart';
 import 'entry_view_screen.dart';
 import 'package:nook/core/greeting.dart';
+import 'package:nook/core/widgets/undo_toast.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -160,10 +161,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (entries.isEmpty) {
                   return SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        query.isEmpty ? 'No entries yet' : 'No results',
-                        style: TextStyle(color: colors.onSurfaceVariant),
+                      padding: const EdgeInsets.symmetric(vertical: 48),
+                      child: Center(
+                        child: Text(
+                          query.isEmpty ? 'nothing recorded yet.' : 'no results',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colors.onSurface.withOpacity(0.4),
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -183,30 +188,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Dismissible(
                           key: ValueKey(entry.id),
                           direction: DismissDirection.endToStart,
-                                                    background: Container(
-                            color: colors.errorContainer,
+                          background: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A1A1A),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Icon(Icons.delete_outline,
-                                color: colors.onErrorContainer),
+                            child: const Icon(Icons.delete_outline,
+                                color: Color(0xFFC62828)),
                           ),
                           onDismissed: (_) async {
                             final repository =
                                 ref.read(journalRepositoryProvider);
+
+                            final overlayState = Overlay.of(context);
+
                             await repository.deleteEntry(entry.id);
 
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: const Text('Entry deleted'),
-                                  action: SnackBarAction(
-                                    label: 'Undo',
-                                    onPressed: () =>
-                                        repository.restoreEntry(entry),
-                                  ),
-                                ),
-                              );
-                            }
+                            showUndoToast(
+                              overlayState,
+                              message: 'entry deleted',
+                              onUndo: () => repository.restoreEntry(entry),
+                            );
                           },
                           child: HistoryEntryCard(
                             entry: entry,
