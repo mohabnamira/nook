@@ -7,6 +7,7 @@ import '../features/lock/presentation/pin_setup.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/history/presentation/history_widgets.dart';
 import 'entry_view_screen.dart';
+import 'package:nook/core/greeting.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -19,19 +20,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   bool _searching = false;
   final _searchController = TextEditingController();
+  late final String greeting;
+
+  @override
+  void initState() {
+    super.initState();
+    greeting = pickGreeting();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'good morning';
-    if (hour < 18) return 'good afternoon';
-    return 'good evening';
   }
 
   void _toggleSearch() {
@@ -103,7 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     border: InputBorder.none,
                                   ),
                                 )
-                              : Text(_greeting(),
+                                : Text(greeting,
                                   style: theme.textTheme.headlineMedium),
                         ),
                         IconButton(
