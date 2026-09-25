@@ -7,8 +7,8 @@ import '../features/lock/presentation/pin_setup.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/history/presentation/history_widgets.dart';
 import 'entry_view_screen.dart';
-import 'package:nook/core/greeting.dart';
-import 'package:nook/core/widgets/undo_toast.dart';
+import 'package:satr/core/greeting.dart';
+import 'package:satr/core/widgets/undo_toast.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -166,7 +166,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Text(
                           query.isEmpty ? 'nothing recorded yet.' : 'no results',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurface.withOpacity(0.4),
+                            color: colors.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                       ),

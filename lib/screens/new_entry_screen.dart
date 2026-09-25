@@ -6,7 +6,7 @@ import '../models/journal_entry.dart';
 import '../features/prompts/application/prompt_providers.dart';
 import '../features/prompts/data/prompt.dart';
 import '../features/prompts/data/prompt_category.dart';
-import 'package:nook/core/text_direction.dart';
+import 'package:satr/core/text_direction.dart';
 
 class NewEntryScreen extends ConsumerStatefulWidget {
   const NewEntryScreen({super.key, this.entry, this.initialPrompt});

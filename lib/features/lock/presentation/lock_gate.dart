@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nook/screens/home_screen.dart';
+import 'package:satr/screens/home_screen.dart';
 import '../application/lock_providers.dart';
 import 'lock_screen.dart';
 class LockGate extends ConsumerWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nook/features/prompts/data/prompt_category.dart';
-import 'package:nook/models/journal_entry.dart';
-import 'package:nook/core/text_direction.dart';
+import 'package:satr/features/prompts/data/prompt_category.dart';
+import 'package:satr/models/journal_entry.dart';
+import 'package:satr/core/text_direction.dart';
 
 bool isSameDay(DateTime a, DateTime b) =>
     a.year == b.year && a.month == b.month && a.day == b.day;

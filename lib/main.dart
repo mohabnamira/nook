@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nook/features/lock/application/lock_providers.dart';
-import 'package:nook/features/lock/data/pin_repository.dart';
-import 'package:nook/features/lock/presentation/lock_gate.dart';
+import 'package:satr/features/lock/application/lock_providers.dart';
+import 'package:satr/features/lock/data/pin_repository.dart';
+import 'package:satr/features/lock/presentation/lock_gate.dart';
 import 'models/journal_entry.dart';
-import 'package:nook/core/theme/app_theme.dart';
+import 'package:satr/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

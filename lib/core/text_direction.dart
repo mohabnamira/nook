@@ -1,5 +1,4 @@
    import 'package:flutter/material.dart';
-   import 'package:characters/characters.dart';
 
 bool isRtl(String text) {
   final rtl = RegExp(

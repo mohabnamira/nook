@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nook/core/text_direction.dart';
-import 'package:nook/data/journal_providers.dart';
-import 'package:nook/features/history/presentation/history_widgets.dart';
-import 'package:nook/models/journal_entry.dart';
+import 'package:satr/core/text_direction.dart';
+import 'package:satr/data/journal_providers.dart';
+import 'package:satr/features/history/presentation/history_widgets.dart';
+import 'package:satr/models/journal_entry.dart';
 import 'new_entry_screen.dart';
 
 class EntryViewScreen extends ConsumerWidget {
