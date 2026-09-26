@@ -14,10 +14,14 @@ class LockGate extends ConsumerWidget {
     return LockScreen(
       title: 'Enter PIN',
       onPin: (pin) async {
-        final ok = await ref.read(pinRepositoryProvider).verify(pin);
-        if (!ok) return 'Wrong PIN';
-        ref.read(unlockedProvider.notifier).state = true;
-        return null;
+        try {
+          final ok = await ref.read(pinRepositoryProvider).verify(pin);
+          if (!ok) return 'Wrong PIN';
+          ref.read(unlockedProvider.notifier).state = true;
+          return null;
+        } catch (e) {
+          return e is Exception ? e.toString() : 'Something went wrong';
+        }
       },
     );
   }
