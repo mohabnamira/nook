@@ -58,10 +58,11 @@ class _UndoToastState extends State<_UndoToast> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final textStyle = Theme.of(context)
         .textTheme
         .bodyMedium
-        ?.copyWith(color: Colors.white);
+        ?.copyWith(color: colors.onSurface);
 
     return Positioned(
       left: 24,
@@ -83,9 +84,9 @@ class _UndoToastState extends State<_UndoToast> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E1E),
+                    color: colors.surfaceContainer,
                     borderRadius: BorderRadius.circular(28),
-                    border: Border.all(color: const Color(0xFF333333)),
+                    border: Border.all(color: colors.outlineVariant),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
